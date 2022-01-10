@@ -78,7 +78,7 @@ def print_output(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes):
         else:
             print("Lifetime   : {0:.4f}".format(mt[i]))
         if(args.verbosity>0):
-            print("Mean error : {0:.4f}".format(corepart*et[i]))
+            print("Mean error : {0:.4f}".format(corepart*e[i]))
         print("STD        : {0:.4f}".format(corepart*stdt[i]))
         if(args.verbosity>0):
             if(args.verbosity>1):

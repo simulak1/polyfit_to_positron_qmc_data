@@ -145,6 +145,21 @@ def get_args():
         default=[-1]
     )
 
+    args_parser.add_argument(
+        '--weight-file',
+        help='give weights for the pcf histograms in the numpy array.',
+	required=False,
+        type=str,
+	default='nofile'
+    )
+
+    args_parser.add_argument(
+        '--wtot',
+	help='total weight.',
+        type=float,
+        default=-1.0
+    )
+    
     return args_parser.parse_args()
                     
 def fit_statistics(args,fits,g,r):
@@ -173,8 +188,12 @@ def fit_statistics(args,fits,g,r):
     imax=get_imax(r,2)
     for i in range(N_degs):
         for j in range(imax):
-            fit_errors[i]=fit_errors[i]+np.absolute(np.exp(fit_average[j,i])-g_average[j])
-            fit_sqerrors[i]=fit_sqerrors[i]+(np.exp(fit_average[j,i])-g_average[j])**2
+            a=1
+            try:
+                fit_errors[i]=fit_errors[i]+np.absolute(np.exp(fit_average[j,i])-g_average[j])     
+                fit_sqerrors[i]=fit_sqerrors[i]+(np.exp(fit_average[j,i])-g_average[j])**2
+            except:
+                print(fit_average[j,i])
     fit_errors=fit_errors/imax
     fit_sqerrors=fit_sqerrors/imax
 
@@ -184,7 +203,7 @@ def fit_statistics(args,fits,g,r):
 
     return fit_errors,fit_sqerrors
 
-def mean_and_error(g):
+def mean_and_error(g,ws):
     '''
     Input: (N_pcf,N_degs)-order matrix of PCF-zeroes.
     Output: 
@@ -194,9 +213,16 @@ def mean_and_error(g):
 
     
     '''
-    gmean=np.mean(g,axis=0)
-    mean_error=np.mean(np.absolute(gmean-g),axis=0)
-    standard_deviation=np.std(g,axis=0)/np.sqrt(g.shape[0])#np.sqrt(np.mean((gmean-g)**2,axis=0))/np.sqrt(g.shape[0])
+    gt=[]
+    for i in range(g.shape[0]):
+        for j in range(int(ws[i])):
+            gt.append(g[i])
+
+    gtemp=np.array(gt)
+    
+    gmean=np.mean(gtemp,axis=0)
+    mean_error=np.mean(np.absolute(gmean-gtemp),axis=0)
+    standard_deviation=np.std(gtemp,axis=0)/np.sqrt(g.shape[0])
         
     return gmean,mean_error,standard_deviation
 
@@ -211,17 +237,34 @@ def main():
     
     # Fitting
     fits,opt_pol_coeff=do_fit(r,r_ex,r_range,glogex,args)
-
+    
     # Fitting statistics
     fe,fsqe=fit_statistics(args,fits,gex,r)
-    
+
+    if(args.weight_file=='nofile'):
+        ws=np.ones((fits.shape[1],))
+        wtot=np.sum(ws)
+    else:
+        print("-------------------------------------------------------------------------")
+        print("WARNING: You are using the weights-file "+args.weight_file+".")
+        print("         the total weigth should be # of twists X # simulations/twist. ")
+        print("-------------------------------------------------------------------------")
+        if(args.wtot<0):
+            sys.exit("You must give total weight when a weight file is present")
+        wtot=args.wtot
+        ws=np.loadtxt(args.weight_file)
+        ws=wtot*ws
+        
     # Get g(0) values and statistics
     gzeros=np.exp(fits[0,:,:])
-    m,e,std=mean_and_error(gzeros)
+
+    m,e,std=mean_and_error(gzeros,ws)
     
     # Lifetime statistics
-    lifetimes=1000.0*(100.617/2*args.num_e/args.volume*gzeros)**-1
-    mt,et,stdt=mean_and_error(lifetimes)
+    coeff1=100.617
+    coeff2=100.93952105134674
+    lifetimes=1000.0*(coeff2/2*args.num_e/args.volume*gzeros)**-1
+    mt,et,stdt=mean_and_error(lifetimes,ws)
 
     if(args.table==1):
         make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
