@@ -91,13 +91,11 @@ def logofg(gs,r,Nx,Npcf,args):
 
     return arrglog,r_extrapolated
     
-def do_fit(r,r_range,g,args):
+def do_fit(r,r_range,p_degs,g,args):
 
     Nx=len(r)
     Npcf=len(g)
     
-    # List of polynomial orders to be tested
-    p_degs=np.arange(args.min_pol,args.max_pol+1,2)
     N_degs = len(p_degs)
 
     # Logarithm of the gs, with negative g-values removed

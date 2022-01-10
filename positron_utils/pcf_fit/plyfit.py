@@ -6,13 +6,27 @@ from fit import do_fit
 from output import *
 from statistics import *
 from input import get_input,get_imax
+from cross_validate import cross_validation
 warnings.simplefilter("error")
 
 def get_args():
 
     args_parser = argparse.ArgumentParser()
-    
+
     # Data files arguments
+
+    args_parser.add_argument(
+	'--task',
+        help='''
+        1: Polynomial fit
+        2: Cross-validation
+        3: Both, 1 is performed based on output from 2.
+        ''',
+        required=False,
+	type=int,
+        default=1
+    )
+
     args_parser.add_argument(
         '--vmcfile',
         help='Local path to vmc data',
@@ -61,6 +75,27 @@ def get_args():
     )
 
     args_parser.add_argument(
+        '--fit-range-min',
+        help='Minimum fit range', 
+        required=False,
+        type=float
+    )                                                                                   
+
+    args_parser.add_argument(
+	'--fit-range-max',
+	help='Maximum fit range',
+        required=False,
+        type=float
+    )
+
+    args_parser.add_argument(
+        '--fit-range-dx',
+        help='Fit range interval',
+	required=False,
+        type=float
+    )
+    
+    args_parser.add_argument(
         '--fitscale',
         help='Scale the errors according to particle distance in the fitting.',
         required=False,
@@ -79,16 +114,18 @@ def get_args():
     args_parser.add_argument(
         '--lat-vec',
         help='Maximum polynomial order.',
-        required=True,
-        type=float
+        required=False,
+        type=float,
+        default=1
     )
 
 
     args_parser.add_argument(
         '--fit-range',
         help='Maximum polynomial order.',
-        required=True,
-        type=float
+        required=False,
+        type=float,
+        default=1
     )
 
     args_parser.add_argument(
@@ -204,6 +241,7 @@ def main():
     # PCF matrices and weights
     r,gex,ws=get_input(args)
 
+    print(" ")
     print("#################################################")
     print("# Polynomial fit of positron-electron PCF       #")
     print("#################################################")
@@ -216,42 +254,80 @@ def main():
     if(args.weight_file != "nofile"):
         print("Twist averaged data, weight file : "+args.weight_file)
     print(" ")
-    print("Loaded: "+args.vmcfile+", "+args.dmcfile+", "+args.rfile)
-    print("Shape of PCF files: ", gex.shape)
+    print("Loaded: ")
+    print(args.vmcfile)
+    print(args.dmcfile)
+    print(args.rfile)
+    print("Shape of PCF files: [{},{}]".format(len(gex),gex[0].shape))
     print(" ")
-    print("Optimization: ")
-    print("-------")
-    r_range=args.fit_range*args.lat_vec
-    print("Fitting range             : {}".format(r_range))
-    print("Maxmimum polynomial order : {}".format(args.max_pol))
+    p_degs=np.arange(args.min_pol,args.max_pol+1,2)
+    if(args.task==1):
+        print("Optimization: ")
+        print("-------")
+        r_range=args.fit_range*args.lat_vec
+        print("Fitting range             : {}".format(r_range))
+        print("Maxmimum polynomial order : {}".format(args.max_pol))
+        
+    elif(args.task==2):
+        rfit=np.arange(args.fit_range_min,args.fit_range_max,args.fit_range_dx)
+
+        print("==== Cross-validation of PCF data fits ===")
+        print(" ")
+        print("Fit ranges to be tested: ")
+        print(rfit)
+        print("Polynomial orders to be tested:")
+        print(p_degs)
+        print(" ")
+    elif(args.task==3):
+        rfit=np.arange(args.fit_range_min,args.fit_range_max,args.fit_range_dx)
+
+        print("==== Cross-validation of PCF data fits ===")
+        print(" ")
+        print("Fit ranges to be tested: ")
+        print(rfit)
+        print("Polynomial orders to be tested:")
+        print(p_degs)
+        print(" ")
+        print("Polynomial fitting is performed on top of the cross-validation")
+    else:
+        sys.exit("Unknown task, give option 1-3.")
+        
     print("Optimization method       :"+args.opt_method)
     if(args.fitscale>0):
         print("Weighting of the residuals applied")
+
+    if(args.task>1):
+        r_range,minpol=cross_validation(args,r,gex,ws,rfit)
+        p_degs=np.arange(minpol,minpol+1,2)
+
+    if(args.task==1 or args.task==3):
+        # Fitting
+        fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,r_range,p_degs,gex,args)
+
+        # Fitting statistics and plotting. NOTE! plotting should be done in separate function
+        fe,fsqe,cve,cve2=fit_statistics(args,fits,gex,r,r_range)    
     
-    # Fitting
-    fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,r_range,gex,args)
+        # Get g(0) values and statistics
+        gzeros=fits[0,:,:]
 
-    # Fitting statistics and plotting. NOTE! plotting should be done in separate function
-    fe,fsqe,cve,cve2=fit_statistics(args,fits,gex,r,r_range)    
+        m,e,std=mean_and_error(gzeros,ws)
     
-    # Get g(0) values and statistics
-    gzeros=fits[0,:,:]
+        # Lifetime statistics
+        coeff1=100.617
+        coeff2=100.93952105134674
+        lifetimes=1000.0*(coeff1/2*args.num_e/args.volume*gzeros)**-1
+        mt,et,stdt=mean_and_error(lifetimes,ws)
 
-    m,e,std=mean_and_error(gzeros,ws)
-    
-    # Lifetime statistics
-    coeff1=100.617
-    coeff2=100.93952105134674
-    lifetimes=1000.0*(coeff1/2*args.num_e/args.volume*gzeros)**-1
-    mt,et,stdt=mean_and_error(lifetimes,ws)
+        if(args.table==1):
+            make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
+        else:
+            print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
 
-    if(args.table==1):
-        make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
-    else:
-        print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
+        if args.plot == 1:
+            plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)
 
-    if args.plot == 1:
-        plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)
+    if(args.plot==1):
+        plt.show()
         
     sys.exit('All done.')
 

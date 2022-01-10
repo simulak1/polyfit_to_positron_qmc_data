@@ -1,6 +1,17 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def plot_crossval_results(MSE,pd,rf):
+
+    Nd=pd.shape[0]
+    Nr=rf.shape[0]
+
+    for i in range(Nd):
+        plt.plot(rf,MSE[:,i],'-*',label='Polynomial degree {}'.format(pd[i]))
+    plt.xlabel('Fitting range')
+    plt.legend()
+    
+
 def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
 
     from input import get_imax
@@ -64,7 +75,6 @@ def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
     _plot_main(1,r,imax,g_average,fit_average,N_degs,p_degs,Npcf)
     _plot_twist(3,3,Npcf,N_degs,rex,r,imax,glog,logfits)    
     _plot_error(3,3,Npcf,N_degs,rex,glog,popt)
-    plt.show()
     
     return
 
@@ -119,7 +129,7 @@ def print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes):
         deg=args.min_pol+i*2
         print("="*40)
         print("Polynomial degree: {}".format(deg))
-        print("Mean error: {:.5f}, Mean squared error: {:.5f}, cross-validation MAE: {:.5f}, cross-validation MSE: {:.5f}".format(fe[i],fsqe[i],cve[i],cve2[i]))
+        print("Mean squared error: {:.5f}, cross-validation MSE: {:.5f}".format(fsqe[i],cve2[i]))
         if(i==np.argmin(fe)):
             print("--> BEST")
         print("-"*40)
