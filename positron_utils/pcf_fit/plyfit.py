@@ -18,8 +18,7 @@ def get_args():
         required=True,
         type=str
     )
-    
-    
+        
     args_parser.add_argument(
         '--dmcfile',
         help='Local path to dmc data',
@@ -162,7 +161,7 @@ def get_args():
     
     return args_parser.parse_args()
                     
-def fit_statistics(args,fits,g,r):
+def fit_statistics(args,fits,g,r,r_range):
 
     # The dimensions of our current experiment
     Nx=len(r)
@@ -180,7 +179,7 @@ def fit_statistics(args,fits,g,r):
             fit_average[:,d]=fit_average[:,d]+fits[:,i,d]
 
     g_average=g_average/Npcf
-    fit_average=fit_average/Npcf
+    fit_average=np.exp(fit_average/Npcf)
             
     # Compute the fitting error
     fit_errors=np.zeros((N_degs,))
@@ -190,14 +189,14 @@ def fit_statistics(args,fits,g,r):
         for j in range(imax):
             a=1
             try:
-                fit_errors[i]=fit_errors[i]+np.absolute(np.exp(fit_average[j,i])-g_average[j])     
-                fit_sqerrors[i]=fit_sqerrors[i]+(np.exp(fit_average[j,i])-g_average[j])**2
+                fit_errors[i]=fit_errors[i]+np.absolute(fit_average[j,i]-g_average[j])     
+                fit_sqerrors[i]=fit_sqerrors[i]+(fit_average[j,i]-g_average[j])**2
             except:
                 print(fit_average[j,i])
     fit_errors=fit_errors/imax
     fit_sqerrors=fit_sqerrors/imax
 
-    
+    imax=get_imax(r,r_range)
     if args.plot == 1:
         plot_results(p_degs,N_degs,g_average,fit_average,r,imax)
 
@@ -239,7 +238,7 @@ def main():
     fits,opt_pol_coeff=do_fit(r,r_ex,r_range,glogex,args)
     
     # Fitting statistics
-    fe,fsqe=fit_statistics(args,fits,gex,r)
+    fe,fsqe=fit_statistics(args,fits,gex,r,r_range)
 
     if(args.weight_file=='nofile'):
         ws=np.ones((fits.shape[1],))
@@ -263,7 +262,7 @@ def main():
     # Lifetime statistics
     coeff1=100.617
     coeff2=100.93952105134674
-    lifetimes=1000.0*(coeff2/2*args.num_e/args.volume*gzeros)**-1
+    lifetimes=1000.0*(coeff1/2*args.num_e/args.volume*gzeros)**-1
     mt,et,stdt=mean_and_error(lifetimes,ws)
 
     if(args.table==1):

@@ -5,7 +5,7 @@ def plot_results(p_degs,N_degs,g_average,fit_average,r,imax):
 
     plt.plot(r,g_average,'k-',linewidth=2,label='Extrapolated data')
     for i in range(N_degs):
-        plt.plot(r[:imax],np.exp(fit_average[:imax,i]),label=str(p_degs[i])+'-order pol.')
+        plt.plot(r[:imax],fit_average[:imax,i],label=str(p_degs[i])+'-order pol.')
     plt.grid()
     plt.xlabel('Positron-electron distance (Bohr) vai hartree?')
     plt.ylabel('Pair correlation function')
