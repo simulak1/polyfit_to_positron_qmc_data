@@ -2,7 +2,6 @@ import numpy as np
 import sys
 import warnings
 from input import get_imax
-from output import *
 
 def fit_average_errors(fit,g,N_degs,r):
     '''
@@ -21,12 +20,13 @@ def fit_average_errors(fit,g,N_degs,r):
 
 def cross_validation_error(fitset,gex,r,args):
 
+    # Number of degrees, number of data arrays, length of pcf points
     N_degs=fitset.shape[2]
     Npcf=fitset.shape[1]
     Nx=fitset.shape[0]
 
+    # Determine number of functions to fit
     gex=np.array(gex).T
-    
     if(args.valset1[0]>-.1):
         fits=np.zeros((Nx,2,N_degs))
         fits[:,0,:]=np.mean(fitset[:,args.valset1,:],axis=1)
@@ -39,57 +39,24 @@ def cross_validation_error(fitset,gex,r,args):
         fits=fitset
         g=gex
 
+    # Cross-validation for mean average error and mean square error
     imax=get_imax(r,1.)
-    imax0=get_imax(r,-1)
-    '''
-    for i in range(imax0,imax):
-        for j in range(g.shape[1]):
-            x=g[i,j]
-            y=np.mean(fits[i,:,0])
-            #print("----------------")
-            #print(x,y)
-            #print(np.absolute(x-y))
-            if(i>10 and False):
-                sys.exit()
-            if(np.absolute(x-y)>0.2*y):
-                x1=max(0,i-5)
-                x2=min(Nx,i+5)
-                g[i,j]=np.mean(g[x1:x2,j])
-                #print(np.absolute(g[i,j]-y))
-    '''         
-
-    
-    cverror=[]
+    imax0=get_imax(r,-1)    
+    cverror=[]; cverror2=[]
     for i in range(N_degs):
-        mse=[]
+        mse=[]; mse2=[]
         for itraining in range(fits.shape[1]):
-            fit=np.exp(fits[imax0:imax,itraining,i])
+            fit=fits[imax0:imax,itraining,i]
             for ivalidation in range(fits.shape[1]):
                 if(ivalidation==itraining):
                     continue
-                error=np.absolute(fit-g[imax0:imax,ivalidation])**1
+                error=np.absolute(fit-g[imax0:imax,ivalidation])
                 for x in range(error.shape[0]):
-                    error[x]*=4.*np.pi*r[i]**2
-                              
+                    error[x]*=4.*np.pi*r[i]**2       
                 mse.append(np.mean(error))
-        mse=sum(mse)/len(mse)
-        cverror.append(mse)
-
-    cverror2=[]
-    for i in range(N_degs):
-        mse=[]
-        for itraining in range(fits.shape[1]):
-            fit=np.exp(fits[imax0:imax,itraining,i])
-            for ivalidation in range(fits.shape[1]):
-                if(ivalidation==itraining):
-                    continue
-                error=np.absolute(fit-g[imax0:imax,ivalidation])**2
-                for x in range(error.shape[0]):
-                    error[x]*=4.*np.pi*r[i]**2
-                    mse.append(np.mean(error))
-                #mse.append(np.mean(np.absolute(fit-g[imax0:imax,ivalidation])**2))
-        mse=sum(mse)/len(mse)
-        cverror2.append(mse)
+                mse2.append(np.mean(error**2))
+        cverror.append(sum(mse)/len(mse))
+        cverror2.append(sum(mse2)/len(mse2))
         
     return cverror,cverror2
         
@@ -100,24 +67,15 @@ def fit_statistics(args,fits,g,r,r_range):
     Npcf=len(g)
     p_degs=np.arange(args.min_pol,args.max_pol+1,2)
     N_degs = len(p_degs)
-    bond_distance=args.fit_range*args.lat_vec
-    
+        
     # Averages of the PCFs and fits
     g_average=np.mean(g,axis=0)
-    try:
-        fit_average=np.exp(np.mean(fits[:get_imax(r,args.explim),:,:],axis=1))
-    except:
-        print("SUCKABLIEVT")
-        print(np.mean(fits,axis=1))
+    fit_average=np.mean(fits,axis=1)
         
     fit_errors, fit_sqerrors = fit_average_errors(fit_average,g_average,N_degs,r)
 
     cverror,cverror2=cross_validation_error(fits,g,r,args)
     
-    imax=get_imax(r,r_range)
-    if args.plot == 1:
-        plot_results(p_degs,N_degs,g_average,fit_average,r,imax)
-
     return fit_errors,fit_sqerrors,cverror,cverror2
 
 def mean_and_error(g,ws):

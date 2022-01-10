@@ -5,7 +5,7 @@ import argparse
 from fit import do_fit
 from output import *
 from statistics import *
-from input import get_input
+from input import get_input,get_imax
 warnings.simplefilter("error")
 
 def get_args():
@@ -200,13 +200,13 @@ def main():
     r_range=args.fit_range*args.lat_vec
     
     # Fitting
-    fits,opt_pol_coeff=do_fit(r,r_range,gex,args)
+    fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,r_range,gex,args)
 
     # Fitting statistics and plotting. NOTE! plotting should be done in separate function
     fe,fsqe,cve,cve2=fit_statistics(args,fits,gex,r,r_range)    
     
     # Get g(0) values and statistics
-    gzeros=np.exp(fits[0,:,:])
+    gzeros=fits[0,:,:]
 
     m,e,std=mean_and_error(gzeros,ws)
     
@@ -220,6 +220,9 @@ def main():
         make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
     else:
         print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
+
+    if args.plot == 1:
+        plot_results(args,fits,logfits,gex,glog,r,rex)
         
     sys.exit('All done.')
 

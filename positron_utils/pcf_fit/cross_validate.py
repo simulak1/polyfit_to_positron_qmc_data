@@ -17,7 +17,7 @@ def get_args():
         required=True,
         type=str
     )
-    
+
     
     args_parser.add_argument(
         '--dmcfile',
@@ -143,6 +143,13 @@ def get_args():
         type=int,
         default=[-1]
     )
+
+    args_parser.add_argument(
+        '--explim',
+        help='After fitting, we sometimes want to exponentiate. This is the upper limit for exp interval.',
+        type=float,
+        default=100.0
+    )
     
     return args_parser.parse_args()
 
@@ -185,7 +192,7 @@ def main():
 
         ri=rfit[ir]
 
-        fits,opt_pol_coeff=do_fit(r,ri,gex,args)
+        fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,ri,gex,args)
 
         mae,mse=cross_validation_error(fits,gex,r,args)
         

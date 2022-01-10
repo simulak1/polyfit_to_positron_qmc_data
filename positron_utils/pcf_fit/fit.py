@@ -1,4 +1,5 @@
 import numpy as np
+import sys
 from input import get_imax
 from scipy.optimize import curve_fit
 
@@ -165,7 +166,7 @@ def do_fit(r,r_range,g,args):
     glog,rex=logofg(g,r,Nx,Npcf,args)
     
     # The array to hold the fits
-    fits=np.zeros((Nx,Npcf,N_degs))
+    logfits=np.zeros((Nx,Npcf,N_degs))
     
     # Optimal polynomial coefficients
     cpol=[]
@@ -175,9 +176,16 @@ def do_fit(r,r_range,g,args):
         imax=get_imax(rex[i],r_range)
         cpol_deg=[]
         for d in range(N_degs):
-            fits[:,i,d],popt=get_fit(r,rex[i],glog[i],p_degs[d],imax,args.opt_method)
+            logfits[:,i,d],popt=get_fit(r,rex[i],glog[i],p_degs[d],imax,args.opt_method)
             cpol_deg.append(popt)
         cpol.append(cpol_deg)
 
-    return fits,cpol
+    try:
+        fits=np.exp(logfits[:get_imax(r,args.explim),:,:])
+    except:
+        print("SUCKABLIEVT")
+        print(np.mean(logfits,axis=1))
+        sys.exit("Try to limit the scope of exponentiation.")
+        
+    return fits,logfits,glog,rex,cpol
 

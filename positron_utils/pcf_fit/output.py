@@ -1,16 +1,45 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_results(p_degs,N_degs,g_average,fit_average,r,imax):
+def plot_results(args,fits,logfits,gex,glog,r,rex):
 
+    from input import get_imax
+
+    r_range=args.fit_range*args.lat_vec
+
+    imax=get_imax(r,r_range)
+    
+    p_degs=np.arange(args.min_pol,args.max_pol+1,2)
+    N_degs = len(p_degs)
+
+    Npcf=fits.shape[1]
+
+    g_average=np.mean(gex,axis=0)
+    fit_average=np.mean(fits,axis=1)
+
+    plt.figure(1)
     plt.plot(r,g_average,'k-',linewidth=2,label='Extrapolated data')
     for i in range(N_degs):
         plt.plot(r[:imax],fit_average[:imax,i],label=str(p_degs[i])+'-order pol.')
     plt.grid()
-    plt.xlabel('Positron-electron distance (Bohr) vai hartree?')
+    plt.xlabel('Positron-electron distance (Bohr)')
     plt.ylabel('Pair correlation function')
-    plt.title('Pair correlation function of positron-electron pairs in diamond-phase silicon')
+    plt.title('Graphs of {} averaged fits and pcfs.'.format(Npcf))
     plt.legend()
+
+    # Plot individual PCF data against corresponding fits. THIS IS CLUMSY; IMPROVE!
+    fig,ax=plt.subplots(4,4)
+    ind=0
+    for i in range(4):
+        for j in range(4):
+            if(ind<Npcf):
+                #print(rex.shape,glog[ind].shape)
+                ax[i,j].plot(rex[ind],glog[ind],'k-')
+                for k in range(N_degs):
+                    ax[i,j].plot(r[:imax],logfits[:imax,ind,k],label="Pol. deg. {}".format(p_degs[k]))
+                ind+=1
+            
+    
     plt.show()
     return
 
