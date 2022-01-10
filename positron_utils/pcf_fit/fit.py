@@ -59,7 +59,7 @@ def get_fit(r,rclean,g,deg,imax,args):
 
     return fit,popt
 
-def logofg(gs,r,Nx,Npcf,args):
+def logofg(gs,r,Nx,Npcf,args,crossval):
 
     arrglog=[]
     r_extrapolated=[]
@@ -70,6 +70,7 @@ def logofg(gs,r,Nx,Npcf,args):
         i=0
         ind=0
         g=gs[ipcf]
+        N_removed=0
         while(i<Nx):
             if(g[i]>0):
                 glog[ind]=np.log(g[i])
@@ -81,17 +82,18 @@ def logofg(gs,r,Nx,Npcf,args):
                 
             else: # logarithm cannot be taken        
                 if(args.verbosity>0):
-                    print("ind: "+str(ipcf)+" i: "+str(i)+", 2gd-gv: "+str(g[i]))
+                   N_removed+=1 
                 rcopy=np.delete(rcopy,i)
                 glog=np.delete(glog,ind+1)
             i+=1
-        
+        if(args.verbosity>0 and not(crossval)):
+            print("PCF {}: {} out of {} points removed because 2*gdmc[i]-gvmc[i] < 0.".format(ipcf,N_removed,Nx))
         arrglog.append(glog)
         r_extrapolated.append(rcopy)
 
     return arrglog,r_extrapolated
     
-def do_fit(r,r_range,p_degs,g,args):
+def do_fit(r,r_range,p_degs,g,args,crossval=False):
 
     Nx=len(r)
     Npcf=len(g)
@@ -99,7 +101,7 @@ def do_fit(r,r_range,p_degs,g,args):
     N_degs = len(p_degs)
 
     # Logarithm of the gs, with negative g-values removed
-    glog,rex=logofg(g,r,Nx,Npcf,args)
+    glog,rex=logofg(g,r,Nx,Npcf,args,crossval)
     
     # The array to hold the fits
     logfits=np.zeros((Nx,Npcf,N_degs))
@@ -107,8 +109,6 @@ def do_fit(r,r_range,p_degs,g,args):
     # Optimal polynomial coefficients
     cpol=[]
 
-    # 
-    
     # Collect fits and fitting polynomial coefficients
     for i in range(Npcf):
         imax=get_imax(rex[i],r_range)
@@ -122,9 +122,9 @@ def do_fit(r,r_range,p_degs,g,args):
     try:
         fits=np.exp(logfits[:get_imax(r,args.explim),:,:])
     except:
-        print("SUCKABLIEVT")
+        print("Error in exponentiation,")
         print(np.mean(logfits,axis=1))
-        sys.exit("Try to limit the scope of exponentiation.")
-
+        sys.exit("Try to limit the length scale of the exponentiated values.")
+    
     return fits,logfits,glog,rex,cpol
 

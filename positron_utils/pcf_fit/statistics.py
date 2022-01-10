@@ -26,6 +26,9 @@ def fit_average_errors(fit,g,N_degs,r):
 
 def cross_validation_error(fitset,gex,r,args):
 
+    imax=get_imax(r,validation_range)
+    imax0=get_imax(r,-1)
+    
     # Number of degrees, number of data arrays, length of pcf points
     N_degs=fitset.shape[2]
     Npcf=fitset.shape[1]
@@ -34,32 +37,33 @@ def cross_validation_error(fitset,gex,r,args):
     # Determine number of functions to fit
     gex=np.array(gex).T
     if(args.valset1[0]>-.1):
-        fits=np.zeros((Nx,2,N_degs))
-        fits[:,0,:]=np.mean(fitset[:,args.valset1,:],axis=1)
-        fits[:,1,:]=np.mean(fitset[:,args.valset2,:],axis=1)
-        g=np.zeros((Nx,2))
-        g[:,0]=np.mean(gex[:,args.valset1],axis=1)
-        g[:,1]=np.mean(gex[:,args.valset2],axis=1)
+        fits=np.zeros((imax,2,N_degs))
+        fits[:,0,:]=np.mean(fitset[:imax,args.valset1,:],axis=1)
+        fits[:,1,:]=np.mean(fitset[:imax,args.valset2,:],axis=1)
+        g=np.zeros((imax,2))
+        g[:,0]=np.mean(gex[:imax,args.valset1],axis=1)
+        g[:,1]=np.mean(gex[:imax,args.valset2],axis=1)
     else:
-        fits=fitset
-        g=gex
+        fits=fitset[:imax,:,:]
+        g=gex[:imax,:]
 
-    # Cross-validation for mean average error and mean square error
-    imax=get_imax(r,validation_range)
-    imax0=get_imax(r,-1)    
+        
     cverror=[]; cverror2=[]
     for i in range(N_degs):
         mse=[]; mse2=[]
         for itraining in range(fits.shape[1]):
-            fit=fits[imax0:imax,itraining,i]
+            fit=fits[:,itraining,i]
             for ivalidation in range(fits.shape[1]):
                 if(ivalidation==itraining):
                     continue
-                error=np.absolute(fit-g[imax0:imax,ivalidation])
-                error=remove_outliers(error,1.3)
+                error=np.absolute(fit-g[:,ivalidation])
+                
+                
+                #error=remove_outliers(error,args.outlier_smoothing)
+                
                 
                 #for x in range(error.shape[0]):
-                #    error[x]*=4.*np.pi*r[i]**2       
+                #    error[x]*=4.*np.pi*r[i]**1       
                 try:
                     mse.append(np.mean(error))
                     mse2.append(np.mean(error**2))

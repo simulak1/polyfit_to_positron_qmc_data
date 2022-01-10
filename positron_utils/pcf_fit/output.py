@@ -1,13 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_crossval_results(MSE,pd,rf):
-
-    Nd=pd.shape[0]
-    Nr=rf.shape[0]
+def plot_crossval_results(MSE,args):
+    p_degs=np.arange(args.min_pol,args.max_pol+1,2)
+    Nd=p_degs.shape[0]
+    rfit=np.arange(args.fit_range_min,args.fit_range_max,args.fit_range_dx)
+    Nr=rfit.shape[0]
 
     for i in range(Nd):
-        plt.plot(rf,MSE[:,i],'-*',label='Polynomial degree {}'.format(pd[i]))
+        plt.plot(rfit,MSE[:,i],'-*',label='Polynomial degree {}'.format(p_degs[i]))
     plt.xlabel('Fitting range')
     plt.legend()
     
@@ -126,29 +127,35 @@ def make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes):
     print("\end{table*}")
     print(" ")
 
-def print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes):
-    
+def print_output(args,p_degs,r_range,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes):
+
+    print("\n FITTING RESULTS:\n")
+
+    print("Fitting range: {} Bohr".format(r_range))
     corepart=args.corepart
     for i in range(m.shape[0]):
-        deg=args.min_pol+i*2
+        deg=p_degs[i]
         print("="*40)
         print("Polynomial degree: {}".format(deg))
-        print("Mean squared error: {:.5f}, cross-validation MSE: {:.5f}".format(fsqe[i],cve2[i]))
+        if(args.verbosity < 1):
+            print("Mean squared error: {:.5f}, cross-validation MSE: {:.5f}".format(fsqe[i],cve2[i]))
+        else:
+            print("Mean error: {:.5f}, Mean squared error: {:.5f}, cross-validation MAE: {:.5f}, cross-validation MSE: {:.5f}".format(fe[i],fsqe[i],cve[i],cve2[i]))
         if(i==np.argmin(fe)):
             print("--> BEST")
         print("-"*40)
-        print("PCF        : {0:.4f}".format(m[i]))
+        print("PCF           : {0:.4f}".format(m[i]))
         if(args.verbosity>0):
-            print("Mean error : {0:.4f}".format(e[i]))
-        print("STD        : {0:.4f}".format(std[i]))
+            print("Mean error    : {0:.4f}".format(e[i]))
+        print("STD           : {0:.4f}".format(std[i]))
         print("-"*40)
         if(abs(corepart-1.0)>0.0000001):
-            print("Lifetime   : {0:.4f} <-core-corrected".format(corepart*mt[i]))
+            print("Lifetime (ps) : {0:.4f} <-core-corrected".format((corepart+mt[i]**-1)**-1))
         else:
-            print("Lifetime   : {0:.4f}".format(mt[i]))
+            print("Lifetime (ps) : {0:.4f}".format(mt[i]))
         if(args.verbosity>0):
-            print("Mean error : {0:.4f}".format(corepart*e[i]))
-        print("STD        : {0:.4f}".format(corepart*stdt[i]))
+            print("Mean error    : {0:.4f}".format(corepart*e[i]))
+        print("STD           : {0:.4f}".format(corepart*stdt[i]))
         if(args.verbosity>0):
             if(args.verbosity>1):
                 print("Separate PCFs:")

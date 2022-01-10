@@ -82,6 +82,21 @@ def get_args():
     )                                                                                   
 
     args_parser.add_argument(
+        '--outlier-smoothing',
+        help='''
+        Given value, the cross-validation will ignore the points where error
+        between a fit and a single pcf curve differ by more than this value. 
+        This prevents the cross-validation to prefer fits that are biased towards
+        outliers, which can happen because PCF is so noisy close to zero. 
+        This does not work well if the fit is bad, and when used, it should be
+        given rather too large than too small value. 
+        ''',
+        required=False,
+	type=float,
+        default=9999.
+    )
+    
+    args_parser.add_argument(
 	'--fit-range-max',
 	help='Maximum fit range',
         required=False,
@@ -296,10 +311,12 @@ def main():
     if(args.fitscale>0):
         print("Weighting of the residuals applied")
 
+    # Do cross-validation
     if(args.task>1):
-        r_range,minpol=cross_validation(args,r,gex,ws,rfit)
+        r_range,minpol,MSE_matrix=cross_validation(args,r,gex,ws,rfit)
         p_degs=np.arange(minpol,minpol+1,2)
 
+    # Fit curves, get PCF and lifetime estimates
     if(args.task==1 or args.task==3):
         # Fitting
         fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,r_range,p_degs,gex,args)
@@ -321,10 +338,13 @@ def main():
         if(args.table==1):
             make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
         else:
-            print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
+            print_output(args,p_degs,r_range,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
 
-        if args.plot > 0:
-            plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)
+    if args.plot > 0:
+        if(args.task>1):
+            plot_crossval_results(MSE_matrix,args)
+        elif(args.task==1):
+            plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)                
 
     if(args.plot>0):
         plt.show()
