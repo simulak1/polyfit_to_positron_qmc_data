@@ -204,10 +204,29 @@ def main():
     # PCF matrices and weights
     r,gex,ws=get_input(args)
 
-    print("Number of PCFs: {}".format(len(gex)))
-
-    # Fitting range
+    print("#################################################")
+    print("# Polynomial fit of positron-electron PCF       #")
+    print("#################################################")
+    print(" ")
+    print("System:")
+    print("-------")
+    print("Volume                 : {} ".format(args.volume))
+    print("Number of electrons    : {}".format(args.num_e))
+    print("Is metal (0=no, 1=yes)?: {} ".format(args.metal))
+    if(args.weight_file != "nofile"):
+        print("Twist averaged data, weight file : "+args.weight_file)
+    print(" ")
+    print("Loaded: "+args.vmcfile+", "+args.dmcfile+", "+args.rfile)
+    print("Shape of PCF files: ", gex.shape)
+    print(" ")
+    print("Optimization: ")
+    print("-------")
     r_range=args.fit_range*args.lat_vec
+    print("Fitting range             : {}".format(r_range))
+    print("Maxmimum polynomial order : {}".format(args.max_pol))
+    print("Optimization method       :"+args.opt_method)
+    if(args.fitscale>0):
+        print("Weighting of the residuals applied")
     
     # Fitting
     fits,logfits,glog,rex,opt_pol_coeff=do_fit(r,r_range,gex,args)
