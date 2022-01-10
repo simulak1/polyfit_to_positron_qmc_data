@@ -1,0 +1,25 @@
+
+There are 2 scripts,
+
+- validate.sh
+- analyse.sh
+
+Both run the same source, but with different inputs. The instructions for
+running the scripts can be obtained by running them without command line
+arguments.
+
+However, there are things that needs to be modified within the
+scripts to make them work for different cases:
+
+- The SRC-variable within the scripts must be given a string that points
+  to the src-directory.
+- If one wants to change the corepart-variable of the plyfit-executable,
+  it can be done by giving a different corepart-variable. These variables
+  are listed within the script.
+- If there are problems with exponentiation, the explim-variable, given for
+  the plyfit-executable within the script must be given a lower value, but
+  higher or equal to the value <fit-range>*<lat-vec>.
+- The volumes and number of electrons for the lithium and silicon cells that
+  have PCF data available in the examples-directory are listed within the
+  analyse.sh-script.
+
