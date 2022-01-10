@@ -3,6 +3,10 @@ import sys
 import warnings
 from input import get_imax
 
+def remove_outliers(array,limit):
+    inliers=array<limit
+    return array[inliers]
+
 def fit_average_errors(fit,g,N_degs,r):
     '''
     Takes in the average of all fits for each polynomial degree
@@ -34,7 +38,6 @@ def cross_validation_error(fitset,gex,r,args):
         g=np.zeros((Nx,2))
         g[:,0]=np.mean(gex[:,args.valset1],axis=1)
         g[:,1]=np.mean(gex[:,args.valset2],axis=1)
-
     else:
         fits=fitset
         g=gex
@@ -51,10 +54,15 @@ def cross_validation_error(fitset,gex,r,args):
                 if(ivalidation==itraining):
                     continue
                 error=np.absolute(fit-g[imax0:imax,ivalidation])
+                error=remove_outliers(error,0.5)
                 #for x in range(error.shape[0]):
                 #    error[x]*=4.*np.pi*r[i]**2       
-                mse.append(np.mean(error))
-                mse2.append(np.mean(error**2))
+                try:
+                    mse.append(np.mean(error))
+                    mse2.append(np.mean(error**2))
+                except:
+                    print("Deg: {}, itrain: {}, ival:{} ".format(i,itraining,ivalidation))
+                    print(error)
         cverror.append(sum(mse)/len(mse))
         cverror2.append(sum(mse2)/len(mse2))
         
