@@ -1,0 +1,60 @@
+There are number of positron-electron pair correlation function (PCF)
+data files that can be used to study the polynomial fits. Each folder
+contains 3 files:
+
+r_1.npy
+--------
+This file contains the radial grid in which the PCF data
+has been accumulated. The values are in atomic units, i.e.
+Bohrs.
+
+gvmc_1.npy gdmc_1.npy
+----------------------
+These files contain the PCF values in the radial grid specified
+by r_1.npy, accumulated with variational or diffusion Monte Carlo
+(VMC or DMC) methods.
+
+
+
+The folders listed now are
+
+lithium_SJ
+-----------
+PCF data for bulk lithium.
+
+- Slater-Jastrow wave function
+- 54 atoms
+- AREP (*) pseudopotentials, thus 54 electrons.
+
+
+lithium_SJ_all_electron
+-----------------------
+- Slater-Jastrow	wave function
+- 54 atoms
+- All electrons treated explicitly, thus 54 electrons.
+
+
+silicon_SJ
+----------
+- Slater-Jastrow	wave function
+- 16 atoms
+- AREP (*) pseudopotentials, thus 64 electrons.
+
+
+silicon_SJB
+----------
+- Slater-Jastrow-backflow   wave function
+- 16 atoms
+- AREP (*) pseudopotentials, thus 64 electrons.
+
+
+silicon_SJ_ECP
+- Slater-Jastrow        wave function
+- 16 atoms
+- ECP (**) pseudopotentials, thus 162 electrons.
+
+
+*  From https://vallico.net/casinoqmc/pplib/
+** from https://pseudopotentiallibrary.org/
+
+
