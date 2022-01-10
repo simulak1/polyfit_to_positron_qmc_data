@@ -48,13 +48,23 @@ def get_args():
         type=int,
         default=3
     )
-    
+
+
+
     args_parser.add_argument(
         '--num-e',
         help='Number of electrons',
         required=False,
         type=int,
         default=3
+    )
+
+    args_parser.add_argument(
+        '--fitscale',
+        help='Scale the errors according to particle distance in the fitting.',
+        required=False,
+        type=int,
+	default=0
     )
     
     args_parser.add_argument(

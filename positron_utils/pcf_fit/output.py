@@ -1,10 +1,53 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_results(args,fits,logfits,gex,glog,r,rex):
+def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
 
     from input import get_imax
+    
+    def _plot_main(fignum,r,imax,g,f,Nd,p_degs,Npcf):
+        plt.figure(1)
+        plt.plot(r,g,'k-',linewidth=2,label='Extrapolated data')
+        for i in range(N_degs):
+            plt.plot(r[:imax],f[:imax,i],label=str(p_degs[i])+'-order pol.')
+        plt.grid()
+        plt.xlabel('Positron-electron distance (Bohr)')
+        plt.ylabel('Pair correlation function')
+        plt.title('Graphs of {} averaged fits and pcfs.'.format(Npcf))
+        plt.legend()
 
+    def _plot_twist(Nx,Ny,Npcf,Nd,rex,r,imax,glog,logfits):
+        fig,ax=plt.subplots(Nx,Ny)
+        ind=0
+        for i in range(Nx):
+            for j in range(Ny):
+                if(ind<Npcf):
+                    ax[i,j].plot(rex[ind],glog[ind],'k-')
+                    for k in range(N_degs):
+                        ax[i,j].plot(r[:imax],logfits[:imax,ind,k],label="Pol. deg. {}".format(p_degs[k]))
+                    ind+=1
+    
+    def _plot_error(Nx,Ny,Npcf,Nd,rex,glog,popt):
+        fig,ax=plt.subplots(Nx,Ny)
+        fig2,ax2=plt.subplots(Nx,Ny)
+        ind=0
+        for i in range(Nx):
+            for j in range(Ny):
+                if(ind<Npcf):
+                    for k in range(N_degs):
+                        coeff=np.insert(popt[ind][k],1,-1)
+                        fit=np.polyval(coeff[::-1],rex[ind])
+                        error=fit-glog[ind]
+                        #error2=error*4*np.pi*rex[ind]**1
+                        error2=error*rex[ind]**1
+                        #ax[i,j].plot(rex[ind],error,label="Fit {}, deg {}".format(ind,k))
+                        ax[i,j].plot(rex[ind][:get_imax(rex[ind],2)],error[:get_imax(rex[ind],2)],label="Fit {}, deg {}".format(ind,k))
+                        ax[i,j].legend()
+                        ax2[i,j].plot(rex[ind][:get_imax(rex[ind],2)],error2[:get_imax(rex[ind],2)],label="Fit {}, deg {}".format(ind,k))
+                        ax2[i,j].legend()
+                    ind+=1
+                    
+    
     r_range=args.fit_range*args.lat_vec
 
     imax=get_imax(r,r_range)
@@ -15,32 +58,14 @@ def plot_results(args,fits,logfits,gex,glog,r,rex):
     Npcf=fits.shape[1]
 
     g_average=np.mean(gex,axis=0)
+
     fit_average=np.mean(fits,axis=1)
 
-    plt.figure(1)
-    plt.plot(r,g_average,'k-',linewidth=2,label='Extrapolated data')
-    for i in range(N_degs):
-        plt.plot(r[:imax],fit_average[:imax,i],label=str(p_degs[i])+'-order pol.')
-    plt.grid()
-    plt.xlabel('Positron-electron distance (Bohr)')
-    plt.ylabel('Pair correlation function')
-    plt.title('Graphs of {} averaged fits and pcfs.'.format(Npcf))
-    plt.legend()
-
-    # Plot individual PCF data against corresponding fits. THIS IS CLUMSY; IMPROVE!
-    fig,ax=plt.subplots(4,4)
-    ind=0
-    for i in range(4):
-        for j in range(4):
-            if(ind<Npcf):
-                #print(rex.shape,glog[ind].shape)
-                ax[i,j].plot(rex[ind],glog[ind],'k-')
-                for k in range(N_degs):
-                    ax[i,j].plot(r[:imax],logfits[:imax,ind,k],label="Pol. deg. {}".format(p_degs[k]))
-                ind+=1
-            
-    
+    _plot_main(1,r,imax,g_average,fit_average,N_degs,p_degs,Npcf)
+    _plot_twist(3,3,Npcf,N_degs,rex,r,imax,glog,logfits)    
+    _plot_error(3,3,Npcf,N_degs,rex,glog,popt)
     plt.show()
+    
     return
 
 

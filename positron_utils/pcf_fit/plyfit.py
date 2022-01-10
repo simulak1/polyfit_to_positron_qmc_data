@@ -42,6 +42,8 @@ def get_args():
         default=3
     )
 
+    
+    
     args_parser.add_argument(
         '--min-pol',
         help='Minimum polynomial order.',
@@ -56,6 +58,14 @@ def get_args():
         required=False,
         type=int,
         default=0
+    )
+
+    args_parser.add_argument(
+        '--fitscale',
+        help='Scale the errors according to particle distance in the fitting.',
+        required=False,
+        type=int,
+        default=-1
     )
     
     args_parser.add_argument(
@@ -222,7 +232,7 @@ def main():
         print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
 
     if args.plot == 1:
-        plot_results(args,fits,logfits,gex,glog,r,rex)
+        plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)
         
     sys.exit('All done.')
 

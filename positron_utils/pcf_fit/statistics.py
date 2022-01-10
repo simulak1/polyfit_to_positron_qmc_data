@@ -51,8 +51,8 @@ def cross_validation_error(fitset,gex,r,args):
                 if(ivalidation==itraining):
                     continue
                 error=np.absolute(fit-g[imax0:imax,ivalidation])
-                for x in range(error.shape[0]):
-                    error[x]*=4.*np.pi*r[i]**2       
+                #for x in range(error.shape[0]):
+                #    error[x]*=4.*np.pi*r[i]**2       
                 mse.append(np.mean(error))
                 mse2.append(np.mean(error**2))
         cverror.append(sum(mse)/len(mse))
