@@ -24,19 +24,13 @@ def extrapolate(args,g_vmc,g_dmc,N,metal,r):
 
     Npcf=g_vmc.shape[1]
         
-    # THE LOGARITHM of extrapolated g
-    arrglog=[]
     # Actual, extrapolated g
     arrg=[]
-    # The r-arrays that are cleaned from offlier points
-    r_extrapolated=[]
     # Extrapolate the QMC result
     for ipcf in range(Npcf):
-        glog=np.zeros((len(g_vmc),))
         g=np.zeros((len(g_vmc),))
         gv=np.zeros((len(g_vmc),))
         gd=np.zeros((len(g_vmc),))
-        rcopy=r
         for i in range(len(r)):
             gv[i]=S*g_vmc[i,ipcf]
             gd[i]=S*g_dmc[i,ipcf]
@@ -44,25 +38,10 @@ def extrapolate(args,g_vmc,g_dmc,N,metal,r):
         i=0
         ind=0
         # Now go throught all the extrapolated values in g
-        while(i<len(r)):
-            if(g[i]>0):
-                glog[ind]=np.log(g[i])
-                ind+=1
-            # The following lines are an option for the if-condition section above 
-            #if(gv[i]>0 and gd[i]>0):# Data is good
-            #    glog[ind]=2*np.log(gd[i])-np.log(gv[i])
-            #    ind+=1
-            else: # logarithm cannot be taken
-                if(args.verbosity>0):
-                    print("ind: "+str(ipcf)+" i: "+str(i)+", 2gd-gv: "+str(g[i]))
-                rcopy=np.delete(rcopy,i)
-                glog=np.delete(glog,ind+1)
-            i+=1
         arrg.append(g)
-        arrglog.append(glog)
-        r_extrapolated.append(rcopy)
         
-    return arrg,arrglog,r_extrapolated
+        
+    return arrg
 
 
 def get_input(args):
@@ -79,6 +58,21 @@ def get_input(args):
     if(args.omit_pcf[0]>-0.1):
         g_vmc=np.delete(g_vmc,args.omit_pcf,axis=1)
         g_dmc=np.delete(g_dmc,args.omit_pcf,axis=1)
-    gex,glogex,r_ex=extrapolate(args,g_vmc,g_dmc,args.num_e,args.metal,r)
+    gex=extrapolate(args,g_vmc,g_dmc,args.num_e,args.metal,r)
 
-    return r,r_ex,gex,glogex
+    if(args.weight_file=='nofile'):
+        ws=np.ones((g_vmc.shape[1],))
+        wtot=np.sum(ws)
+    else:
+        print("-------------------------------------------------------------------------")
+        print("WARNING: You are using the weights-file "+args.weight_file+".")
+        print("         the total weigth should be # of twists X # simulations/twist. ")
+        print("-------------------------------------------------------------------------")
+        if(args.wtot<0):
+            sys.exit("You must give total weight when a weight file is present")
+        wtot=args.wtot
+        ws=np.loadtxt(args.weight_file)
+        ws=wtot*ws
+
+    
+    return r,gex,ws

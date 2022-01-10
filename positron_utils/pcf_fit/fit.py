@@ -121,26 +121,58 @@ def get_fit(r,rclean,g,deg,imax,mthd):
         
     return fit,popt
 
-def do_fit(r,rex,r_range,glog,args):
-    Nx=len(r)
-    Npcf=len(rex)
+def logofg(gs,r,Nx,Npcf,args):
 
+    arrglog=[]
+    r_extrapolated=[]
+
+    for ipcf in range(Npcf):
+        glog=np.zeros((Nx,))
+        rcopy=r
+        i=0
+        ind=0
+        g=gs[ipcf]
+        while(i<Nx):
+            if(g[i]>0):
+                glog[ind]=np.log(g[i])
+                ind+=1
+                # The following lines are an option for the if-condition section above
+                #if(gv[i]>0 and gd[i]>0):# Data is good
+                #    glog[ind]=2*np.log(gd[i])-np.log(gv[i])
+                #    ind+=1
+                
+            else: # logarithm cannot be taken        
+                if(args.verbosity>0):
+                    print("ind: "+str(ipcf)+" i: "+str(i)+", 2gd-gv: "+str(g[i]))
+                rcopy=np.delete(rcopy,i)
+                glog=np.delete(glog,ind+1)
+            i+=1
+        
+        arrglog.append(glog)
+        r_extrapolated.append(rcopy)
+
+    return arrglog,r_extrapolated
+    
+def do_fit(r,r_range,g,args):
+
+    Nx=len(r)
+    Npcf=len(g)
+    
     # List of polynomial orders to be tested
     p_degs=np.arange(args.min_pol,args.max_pol+1,2)
     N_degs = len(p_degs)
 
+    glog,rex=logofg(g,r,Nx,Npcf,args)
+    
     # The array to hold the fits
     fits=np.zeros((Nx,Npcf,N_degs))
     
-    # The distance of the fit
-    bond_distance=r_range
-
     # Optimal polynomial coefficients
     cpol=[]
 
     # Collect fits and fitting polynomial coefficients
     for i in range(Npcf):
-        imax=get_imax(rex[i],bond_distance)
+        imax=get_imax(rex[i],r_range)
         cpol_deg=[]
         for d in range(N_degs):
             fits[:,i,d],popt=get_fit(r,rex[i],glog[i],p_degs[d],imax,args.opt_method)

@@ -4,7 +4,8 @@ import warnings
 import argparse
 from fit import do_fit
 from output import *
-from input import get_input,get_imax
+from statistics import *
+from input import get_input
 warnings.simplefilter("error")
 
 def get_args():
@@ -158,102 +159,52 @@ def get_args():
         type=float,
         default=-1.0
     )
+
+    args_parser.add_argument(
+        '--valset1',
+	help='Cross-validation set 1, by averaging.',
+        required=False,
+	nargs='+',
+	type=int,
+        default=[-1]
+    )
+
+    args_parser.add_argument(
+        '--valset2',
+	help='Cross-validation set 2, by averaging.',
+        required=False,
+        nargs='+',
+        type=int,
+        default=[-1]
+    )
+
+    args_parser.add_argument(
+        '--explim',
+        help='After fitting, we sometimes want to exponentiate. This is the upper limit for exp interval.',
+	type=float,
+        default=100.0
+    )
     
     return args_parser.parse_args()
                     
-def fit_statistics(args,fits,g,r,r_range):
-
-    # The dimensions of our current experiment
-    Nx=len(r)
-    Npcf=len(g)
-    p_degs=np.arange(args.min_pol,args.max_pol+1,2)
-    N_degs = len(p_degs)
-    bond_distance=args.fit_range*args.lat_vec
-    
-    # Averages of the PCFs and fits
-    fit_average=np.zeros((Nx,N_degs))
-    g_average=np.zeros((Nx,))
-    for i in range(Npcf):
-        g_average[:]=g_average[:]+g[i]
-        for d in range(N_degs):
-            fit_average[:,d]=fit_average[:,d]+fits[:,i,d]
-
-    g_average=g_average/Npcf
-    fit_average=np.exp(fit_average/Npcf)
-            
-    # Compute the fitting error
-    fit_errors=np.zeros((N_degs,))
-    fit_sqerrors=np.zeros((N_degs,))
-    imax=get_imax(r,2)
-    for i in range(N_degs):
-        for j in range(imax):
-            a=1
-            try:
-                fit_errors[i]=fit_errors[i]+np.absolute(fit_average[j,i]-g_average[j])     
-                fit_sqerrors[i]=fit_sqerrors[i]+(fit_average[j,i]-g_average[j])**2
-            except:
-                print(fit_average[j,i])
-    fit_errors=fit_errors/imax
-    fit_sqerrors=fit_sqerrors/imax
-
-    imax=get_imax(r,r_range)
-    if args.plot == 1:
-        plot_results(p_degs,N_degs,g_average,fit_average,r,imax)
-
-    return fit_errors,fit_sqerrors
-
-def mean_and_error(g,ws):
-    '''
-    Input: (N_pcf,N_degs)-order matrix of PCF-zeroes.
-    Output: 
-      * Means over separate PCF's.
-      * Mean average errors of PCF's.
-      * Standard deviations of PCF's.
-
-    
-    '''
-    gt=[]
-    for i in range(g.shape[0]):
-        for j in range(int(ws[i])):
-            gt.append(g[i])
-
-    gtemp=np.array(gt)
-    
-    gmean=np.mean(gtemp,axis=0)
-    mean_error=np.mean(np.absolute(gmean-gtemp),axis=0)
-    standard_deviation=np.std(gtemp,axis=0)/np.sqrt(g.shape[0])
-        
-    return gmean,mean_error,standard_deviation
-
-
 def main():
 
     args=get_args()
-    
-    r,r_ex,gex,glogex=get_input(args)
 
+    # PCF matrices and weights
+    r,gex,ws=get_input(args)
+
+    print("Number of PCFs: {}".format(len(gex)))
+
+    # Fitting range
     r_range=args.fit_range*args.lat_vec
     
     # Fitting
-    fits,opt_pol_coeff=do_fit(r,r_ex,r_range,glogex,args)
-    
-    # Fitting statistics
-    fe,fsqe=fit_statistics(args,fits,gex,r,r_range)
+    fits,opt_pol_coeff=do_fit(r,r_range,gex,args)
 
-    if(args.weight_file=='nofile'):
-        ws=np.ones((fits.shape[1],))
-        wtot=np.sum(ws)
-    else:
-        print("-------------------------------------------------------------------------")
-        print("WARNING: You are using the weights-file "+args.weight_file+".")
-        print("         the total weigth should be # of twists X # simulations/twist. ")
-        print("-------------------------------------------------------------------------")
-        if(args.wtot<0):
-            sys.exit("You must give total weight when a weight file is present")
-        wtot=args.wtot
-        ws=np.loadtxt(args.weight_file)
-        ws=wtot*ws
-        
+    # Fitting statistics and plotting. NOTE! plotting should be done in separate function
+    fe,fsqe,cve,cve2=fit_statistics(args,fits,gex,r,r_range)    
+    
     # Get g(0) values and statistics
     gzeros=np.exp(fits[0,:,:])
 
@@ -268,7 +219,7 @@ def main():
     if(args.table==1):
         make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
     else:
-        print_output(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes)
+        print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
         
     sys.exit('All done.')
 

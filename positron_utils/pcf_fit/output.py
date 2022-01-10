@@ -58,13 +58,14 @@ def make_table(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes):
     print("\end{table*}")
     print(" ")
 
-def print_output(args,m,mt,fe,fsqe,e,std,stdt,gzeros,lifetimes):
+def print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes):
+    
     corepart=args.corepart
     for i in range(m.shape[0]):
         deg=args.min_pol+i*2
         print("="*40)
         print("Polynomial degree: {}".format(deg))
-        print("Mean error: {0:.5f}, Mean squared error: {0:.5f}".format(fe[i],fsqe[i]))
+        print("Mean error: {:.5f}, Mean squared error: {:.5f}, cross-validation MAE: {:.5f}, cross-validation MSE: {:.5f}".format(fe[i],fsqe[i],cve[i],cve2[i]))
         if(i==np.argmin(fe)):
             print("--> BEST")
         print("-"*40)
