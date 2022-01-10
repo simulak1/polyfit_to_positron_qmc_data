@@ -34,7 +34,7 @@ def fit_func(r,x,y,polynomial,imax,args):
             popt,pcov=curve_fit(polynomial,x[:imax],y[:imax],method=args.opt_method,sigma=sigma**-1)
         else:
             sigma=4*np.pi*x[:imax]
-            popt,pcov=curve_fit(polynomial,x[:imax],y[:imax],method=args.opt_method,jac='3-point',sigma=sigma**-1,loss='cauchy',x_scale='jac')
+            popt,pcov=curve_fit(polynomial,x[:imax],y[:imax],method=args.opt_method,jac='2-point',sigma=sigma**-1)
     else:
         popt,pcov=curve_fit(polynomial,x[:imax],y[:imax],method=args.opt_method)
     return polynomial(r,*popt),popt

@@ -3,6 +3,8 @@ import sys
 import warnings
 from input import get_imax
 
+validation_range=1
+
 def remove_outliers(array,limit):
     inliers=array<limit
     return array[inliers]
@@ -15,7 +17,7 @@ def fit_average_errors(fit,g,N_degs,r):
     PCF for each of the polynomial degrees.
     '''    
 
-    imax=get_imax(r,1.)
+    imax=get_imax(r,validation_range)
 
     fit_errors=np.mean(np.absolute((fit[:imax,:].T-g[:imax]).T),axis=0)
     fit_sqerrors=np.mean(((fit[:imax,:].T-g[:imax]).T)**2,axis=0)
@@ -43,7 +45,7 @@ def cross_validation_error(fitset,gex,r,args):
         g=gex
 
     # Cross-validation for mean average error and mean square error
-    imax=get_imax(r,1.)
+    imax=get_imax(r,validation_range)
     imax0=get_imax(r,-1)    
     cverror=[]; cverror2=[]
     for i in range(N_degs):
@@ -54,7 +56,8 @@ def cross_validation_error(fitset,gex,r,args):
                 if(ivalidation==itraining):
                     continue
                 error=np.absolute(fit-g[imax0:imax,ivalidation])
-                error=remove_outliers(error,0.5)
+                error=remove_outliers(error,1.3)
+                
                 #for x in range(error.shape[0]):
                 #    error[x]*=4.*np.pi*r[i]**2       
                 try:

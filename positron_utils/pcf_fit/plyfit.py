@@ -107,8 +107,8 @@ def get_args():
         '--num-e',
         help='Number of electrons',
         required=False,
-        type=int,
-        default=3
+        type=float,
+        default=3.
     )
     
     args_parser.add_argument(
@@ -323,10 +323,10 @@ def main():
         else:
             print_output(args,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lifetimes)
 
-        if args.plot == 1:
+        if args.plot > 0:
             plot_results(args,fits,logfits,gex,glog,r,rex,opt_pol_coeff)
 
-    if(args.plot==1):
+    if(args.plot>0):
         plt.show()
         
     sys.exit('All done.')

@@ -72,9 +72,13 @@ def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
 
     fit_average=np.mean(fits,axis=1)
 
-    _plot_main(1,r,imax,g_average,fit_average,N_degs,p_degs,Npcf)
-    _plot_twist(3,3,Npcf,N_degs,rex,r,imax,glog,logfits)    
-    _plot_error(3,3,Npcf,N_degs,rex,glog,popt)
+    print(args.plot)
+    if(args.plot>0):
+        _plot_main(1,r,imax,g_average,fit_average,N_degs,p_degs,Npcf)
+    if(args.plot>1):
+        _plot_twist(3,3,Npcf,N_degs,rex,r,imax,glog,logfits)
+    if(args.plot>2):
+        _plot_error(3,3,Npcf,N_degs,rex,glog,popt)
     
     return
 
