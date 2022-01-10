@@ -119,6 +119,13 @@ def get_args():
     
     return args_parser.parse_args()
 
+def printProgressBar(i,max,postText):
+    n_bar =10 #size of progress bar
+    j= i/max
+    sys.stdout.write('\r')
+    sys.stdout.write(f"[{'=' * int(n_bar * j):{n_bar}s}] {int(100 * j)}%  {postText}")
+    sys.stdout.flush()
+
 def main():
 
     args=get_args()
@@ -142,7 +149,8 @@ def main():
     
     MSE_matrix=np.zeros((rfit.shape[0],N_degs))
 
-    irmax=get_imax(r,2.0)
+    irmax=get_imax(r,1.)
+    ir1=get_imax(r,0.0)
     
     for ir in range(rfit.shape[0]):
         ri=rfit[ir]
@@ -150,18 +158,19 @@ def main():
         fits,opt_pol_coeff=do_fit(r,r_ex,ri,glogex,args)
         
         for ideg in range(N_degs):
-            print("Validating fit range {}, polynomial deg. {}".format(ri,p_degs[ideg]))
+            #print("Validating fit range {}, polynomial deg. {}".format(ri,p_degs[ideg]))
+            printProgressBar(ir*N_degs+ideg,rfit.shape[0]*N_degs,"Validation progress")
             mse=[]
             for itraining in range(Npcf):
-                fit=np.exp(fits[:irmax,itraining,ideg])
+                fit=np.exp(fits[ir1:irmax,itraining,ideg])
                 for ivalidation in range(Npcf):
                     if(ivalidation==itraining):
                         continue
-                    mse.append(np.mean((fit-gex[ivalidation][:irmax])**2))
+                    mse.append(np.mean((fit-gex[ivalidation][ir1:irmax])**2))
 
             MSE_matrix[ir,ideg]=sum(mse)/len(mse)
 
-    print("Number of PCF histograms: {} ".format(Npcf))
+    print("\n Number of PCF histograms: {} ".format(Npcf))
     print(" ")
     print("Cross-validated mean-square errors on the fits in the reange 0-1 au.:")
     print(" ")
