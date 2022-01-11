@@ -1,7 +1,7 @@
  #!/bin/bash
 
 # Write the path to the src-directory here
-SRC=../src
+SRC=../positron_utils/pcf_fit
 
 if [ "$#" -ne 5 ]; then
     echo " "

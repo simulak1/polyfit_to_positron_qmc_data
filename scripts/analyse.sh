@@ -2,7 +2,7 @@
 
 # Moodify this to point to the src-directory
 #SRC=<path-to-source-dir>
-SRC=../src
+SRC=../positron_utils/pcf_fit
 
 if [ "$#" -ne 5 ]; then
     echo " "
