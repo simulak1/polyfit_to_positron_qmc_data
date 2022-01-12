@@ -22,4 +22,5 @@ scripts to make them work for different cases:
 - The volumes and number of electrons for the lithium and silicon cells that
   have PCF data available in the examples-directory are listed within the
   analyse.sh-script.
+- For validation, the number of electrons is unnecessary, therefore ignore the printed output in this respect. 
 
