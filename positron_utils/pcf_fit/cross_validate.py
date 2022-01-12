@@ -7,7 +7,7 @@ from statistics import cross_validation_error
 
 def printProgressBar(i,max,postText):
     n_bar =10 #size of progress bar
-    j= i/max
+    j= (i+1)/max
     sys.stdout.write('\r')
     sys.stdout.write(f"[{'=' * int(n_bar * j):{n_bar}s}] {int(100 * j)}%  {postText}")
     sys.stdout.flush()
