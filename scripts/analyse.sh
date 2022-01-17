@@ -7,7 +7,7 @@ SRC=../positron_utils/pcf_fit
 if [ "$#" -ne 7 ]; then
     echo " "
     echo "Usage: "
-    echo "./$0 <folder> <num-e> <volume> <fit_range> <max-pol> <corepart> <element>, "
+    echo "./$0 <folder> <num-e> <volume> <fit_range> <max-pol> <corepart>, "
     echo "where"
     echo "<folder>:      found from local folder as system_size/opt_level,"
     echo "<num-e>: Number of electrons"
@@ -15,7 +15,6 @@ if [ "$#" -ne 7 ]; then
     echo "<fit_range>  : specified currently as fraction of the lattice constant"
     echo "<max-pol>    : maximum polynomial order"
     echo "<corepart>    : core electron contribution modifier"
-    echo "<element>    : element selected"
     echo " "
     exit
 fi
