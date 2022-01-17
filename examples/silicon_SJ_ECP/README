@@ -13,7 +13,9 @@ Mean squared error: 0.00640, cross-validation MSE: 0.07056
 PCF           : 0.9555
 STD           : 0.0011
 ----------------------------------------
-Lifetime (ps) : 225.9338 <-core-corrected
-STD           : 0.0000
+Lifetime (ps) : 234.1341
+STD           : 0.2605
 
 Using the simulation cell volume found in the PCF expval datafile. For the ECP pseudopotential there are 192 electrons with 2 atoms per primitive cell using a 2x2x2 k-point grid. Core corrected with the default B15 fractional. 
+
+For ECP pseudopotentials, the lifetime result doesn't need to be core corrected due to being such a large pseudopotential the core contribution is very minimal. Therefore, in `plyfit.py` file `--corepart 1` . 
