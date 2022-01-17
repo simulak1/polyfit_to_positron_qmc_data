@@ -5,12 +5,16 @@ A program to fit N:th order polynomial to quantum Monte Carlo-based, translation
 ## Folders 
 
 * positron_utils/pcf_fit
+
 Contains the source code of the program. To print program info, run `python positron_utils/pcf_fit/plyfit.py -h`
 * examples
+
 Example data of silicon and lithium with different quantum wave function approximations. Each folder within `examples` contains 4 files: radial grid r_1.npy, variational Monte Carlo PCF data gvmc_1.npy, diffusion Monte Carlo PCF data gdmc_1.npy and a weight file for the relative weights of the twists corresponding to single PCFs.
 * scripts
+
 Helpful scripts to run the main program. Information for running the scripts can be found from within the scripts analyse.sh and validate.sh, and from scripts/README
 * extra
+
 Some extra things about the program
 
 ## Quick start to analyse example data
