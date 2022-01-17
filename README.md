@@ -21,9 +21,9 @@ Some extra things about the program
 2. Go to repository
 #### Pip
 
-3. `pip install virtualenv`
-4. `python -m venv virtualenv; source virtualenv/bin/activate`
-5. pip install -r requirements.txt
+3.1 `pip install virtualenv`
+3.1 `python -m venv virtualenv; source virtualenv/bin/activate`
+3.3 pip install -r requirements.txt
 
 #### Anaconda
 
@@ -31,10 +31,10 @@ Some extra things about the program
 
 ### Validate the fitting parameters, fit, and compute the lifetime estimates for bulk silicon
 
-6. cd scripts
-7. ./validate.sh ../examples/silicon_SJ 2 8 0.5 7
+4. cd scripts
+5. ./validate.sh ../examples/silicon_SJ 2 8 0.5 7
 * *The best parameter combinations are either with polynomial order 3 and fitting range of 2 Bohr or order 5 and range 4.5* *
-8. ./analyse.sh ../examples/silicon_SJ 8 0.270107093552E+03 4.4 5 0.000155019074496
+6. ./analyse.sh ../examples/silicon_SJ 8 0.270107093552E+03 4.4 5 0.000155019074496
 * *I get lifetime of 238.8ps with the 5:th-order polynomial
 
 ## Program background and theory
