@@ -23,7 +23,7 @@ Some extra things about the program
 
 3.1 `pip install virtualenv`
 3.1 `python -m venv virtualenv; source virtualenv/bin/activate`
-3.3 pip install -r requirements.txt
+3.3 `pip install -r requirements.txt`
 
 #### Anaconda
 
