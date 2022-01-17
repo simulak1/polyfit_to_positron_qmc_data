@@ -6,7 +6,7 @@ SRC=../positron_utils/pcf_fit
 if [ "$#" -ne 5 ]; then
     echo " "
     echo "Usage: "
-    echo "./$0 <folder> <pcf_reblock> <fit_range-min> <fit_range-max> <fit_range-dx> <max-pol> , "
+    echo "./$0 <folder> <fit_range-min> <fit_range-max> <fit_range-dx> <max-pol> , "
     echo "where"
     echo "<folder>:      found from local folder as system_size/opt_level,"
     echo "<fit_range-min>  : Minimum fit range"

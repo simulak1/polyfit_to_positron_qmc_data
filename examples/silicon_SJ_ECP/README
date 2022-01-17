@@ -1,0 +1,21 @@
+Results:
+
+`./validate.sh ../examples/silicon_SJ_ECP/ 2 8 0.5 7`
+
+Shows a fit range if 2.5 bohr with polynomial of 5 to be best.
+
+`./analyse.sh ../examples/silicon_SJ_ECP 192 2.1608567484189534E+03 2.5 5` 
+
+Polynomial degree: 5
+Mean squared error: 0.00640, cross-validation MSE: 0.07056
+--> BEST
+----------------------------------------
+PCF           : 0.9555
+STD           : 0.0011
+----------------------------------------
+Lifetime (ps) : 234.1341
+STD           : 0.2605
+
+Using the simulation cell volume found in the PCF expval datafile. For the ECP pseudopotential there are 192 electrons with 2 atoms per primitive cell using a 2x2x2 k-point grid. Core corrected with the default B15 fractional. 
+
+For ECP pseudopotentials, the lifetime result doesn't need to be core corrected due to being such a large pseudopotential the core contribution is very minimal. Therefore, in `plyfit.py` file `--corepart 1` . 

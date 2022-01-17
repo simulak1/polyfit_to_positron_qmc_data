@@ -4,16 +4,17 @@
 #SRC=<path-to-source-dir>
 SRC=../positron_utils/pcf_fit
 
-if [ "$#" -ne 5 ]; then
+if [ "$#" -ne 6 ]; then
     echo " "
     echo "Usage: "
-    echo "./$0 <folder> <num-e> <volume> <fit_range> <max-pol> , "
+    echo "./$0 <folder> <num-e> <volume> <fit_range> <max-pol> <corepart>, "
     echo "where"
     echo "<folder>:      found from local folder as system_size/opt_level,"
     echo "<num-e>: Number of electrons"
     echo "<volume>: Volume"
     echo "<fit_range>  : specified currently as fraction of the lattice constant"
     echo "<max-pol>    : maximum polynomial order"
+    echo "<corepart>    : core electron contribution modifier"
     echo " "
     exit
 fi
@@ -58,6 +59,9 @@ li_corepart_B15=0.000352885464408
 li_corepart_B95=0.000214330966927
 li_corepart_KUR=0.000334737553995
 
+corepart=$6
+
+
 # Silicon primitive cell volume 
 V=0.270107093552E+03
 # Number of electrons in silicon primitive cell with AREP pseudos
@@ -72,6 +76,8 @@ N=54
 # Number of electrons in all-electron simulation
 N=162
 
-python $SRC/plyfit.py --vmcfile $gv --dmcfile $gd --rfile $r --max-pol $5 --min-pol 3 --plot 1 --lat-vec 1 --fit-range $4 --num-e $2 --volume $3 --verbosity 0 --metal 0 --corepart $si_corepart_B15  --table 0 --weight-file $1/weights.txt --wtot=128 --explim 4.5 --opt-method='lm' --fitscale 1 
+python $SRC/plyfit.py --vmcfile $gv --dmcfile $gd --rfile $r --max-pol $5 --min-pol 3 --plot 1 --lat-vec 1 --fit-range $4 --num-e $2 --volume $3 --verbosity 0 --metal 0 --corepart $corepart  --table 0 --weight-file $1/weights.txt --wtot=128 --explim 4.5 --opt-method='lm' --fitscale 1
+
+echo "Core correction done via" $6 core contribution=$corepart
 
 
