@@ -2,3 +2,5 @@ virtualenv
 *~
 *__*
 .vscode
+*#*
+*pyc
