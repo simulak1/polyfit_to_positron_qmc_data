@@ -60,45 +60,7 @@ li_corepart_B15=0.000352885464408
 li_corepart_B95=0.000214330966927
 li_corepart_KUR=0.000334737553995
 
-echo $6 $7
-
-if [ $6 = "ECP"  ]; then
-    corepart=1
-
-elif [ $6 = "ND" ] && [ $7 = "Si"  ]; then
-    corepart=$si_corepart_ND
-
-elif [ $6 = "BN" ] && [ $7 = "Si"  ]; then
-    corepart=$si_corepart_BN
-
-elif [ $6 = "B15" ] && [ $7 = "Si"  ]; then
-    corepart=$si_corepart_B15
-
-elif [ $6 = "B95" ] && [ $7 = "Si"  ]; then
-    corepart=$si_corepart_B95
-
-elif [ $6 = "KUR" ] && [ $7 = "Si"  ]; then
-    corepart=$si_corepart_KUR
-
-elif [ $6 = "ND" ] && [ $7 = "Li"  ]; then
-    corepart=$li_corepart_ND
-
-elif [ $6 = "BN" ] && [ $7 = "Li"  ]; then
-    corepart=$li_corepart_BN
-
-elif [ $6 = "B15" ] && [ $7 = "Li"  ]; then
-    corepart=$li_corepart_B15
-
-elif [ $6 = "B95" ] && [ $7 = "Li"  ]; then
-    corepart=$li_corepart_B95
-
-elif [ $6 = "KUR" ] && [ $7 = "Li"  ]; then
-    corepart=$li_corepart_KUR
-
-else 
-    echo "Core contribution option not found."
-    exit 5
-fi
+corepart=$6
 
 
 # Silicon primitive cell volume 
