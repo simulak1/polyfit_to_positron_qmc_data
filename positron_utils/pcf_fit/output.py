@@ -47,7 +47,7 @@ def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
             for j in range(Ny):
                 if(ind<Npcf):
                     for k in range(N_degs):
-                        coeff=np.insert(popt[ind][k],1,-1)
+65;6003;1c                        coeff=np.insert(popt[ind][k],1,-1)
                         fit=np.polyval(coeff[::-1],rex[ind])
                         error=fit-glog[ind]
                         #error2=error*4*np.pi*rex[ind]**1
@@ -154,8 +154,8 @@ def print_output(args,p_degs,r_range,m,mt,fe,fsqe,cve,cve2,e,std,stdt,gzeros,lif
         else:
             print("Lifetime (ps) : {0:.4f}".format(mt[i]))
         if(args.verbosity>0):
-            print("Mean error    : {0:.4f}".format(corepart*e[i]))
-        print("STD           : {0:.4f}".format(corepart*stdt[i]))
+            print("Mean error    : {0:.4f}".format(e[i]))
+        print("STD           : {0:.4f}".format(stdt[i]))
         if(args.verbosity>0):
             if(args.verbosity>1):
                 print("Separate PCFs:")

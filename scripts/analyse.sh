@@ -78,6 +78,6 @@ N=162
 
 python $SRC/plyfit.py --vmcfile $gv --dmcfile $gd --rfile $r --max-pol $5 --min-pol 3 --plot 1 --lat-vec 1 --fit-range $4 --num-e $2 --volume $3 --verbosity 0 --metal 0 --corepart $corepart  --table 0 --weight-file $1/weights.txt --wtot=128 --explim 4.5 --opt-method='lm' --fitscale 1
 
-echo "Core correction done via" $6 core contribution=$corepart
+
 
 

@@ -34,7 +34,7 @@ Some extra things about the program
 6. cd scripts
 7. ./validate.sh ../examples/silicon_SJ 2 8 0.5 7
 * *The best parameter combinations are either with polynomial order 3 and fitting range of 2 Bohr or order 5 and range 4.5* *
-8. ./analyse.sh ../examples/silicon_SJ 8 0.270107093552E+03 4.4 5
+8. ./analyse.sh ../examples/silicon_SJ 8 0.270107093552E+03 4.4 5 0.000155019074496
 * *I get lifetime of 238.8ps with the 5:th-order polynomial
 
 ## Program background and theory
