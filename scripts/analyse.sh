@@ -4,7 +4,7 @@
 #SRC=<path-to-source-dir>
 SRC=../positron_utils/pcf_fit
 
-if [ "$#" -ne 7 ]; then
+if [ "$#" -ne 6 ]; then
     echo " "
     echo "Usage: "
     echo "./$0 <folder> <num-e> <volume> <fit_range> <max-pol> <corepart>, "
