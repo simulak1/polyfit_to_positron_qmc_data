@@ -349,7 +349,7 @@ def main():
     if(args.plot>0):
         plt.show()
         
-    sys.exit('All done.')
+    print('All done.')
 
 if __name__ == '__main__':
     main()
