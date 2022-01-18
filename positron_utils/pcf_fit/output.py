@@ -19,13 +19,14 @@ def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
     
     def _plot_main(fignum,r,imax,g,f,Nd,p_degs,Npcf):
         plt.figure(1)
-        plt.plot(r,g,'k-',linewidth=2,label='Extrapolated data')
+        plt.plot(r,g,'k-',linewidth=2,label='Average extrapolated PCF')
         for i in range(N_degs):
             plt.plot(r[:imax],f[:imax,i],label=str(p_degs[i])+'-order pol.')
         plt.grid()
         plt.xlabel('Positron-electron distance (Bohr)')
         plt.ylabel('Pair correlation function')
         plt.title('Graphs of {} averaged fits and pcfs.'.format(Npcf))
+        plt.axvline(x=4.4,color='r',linestyle='dotted',label="Nearest-neighbour distance")
         plt.legend()
 
     def _plot_twist(Nx,Ny,Npcf,Nd,rex,r,imax,glog,logfits):
@@ -47,7 +48,7 @@ def plot_results(args,fits,logfits,gex,glog,r,rex,popt):
             for j in range(Ny):
                 if(ind<Npcf):
                     for k in range(N_degs):
-65;6003;1c                        coeff=np.insert(popt[ind][k],1,-1)
+                        coeff=np.insert(popt[ind][k],1,-1)
                         fit=np.polyval(coeff[::-1],rex[ind])
                         error=fit-glog[ind]
                         #error2=error*4*np.pi*rex[ind]**1
