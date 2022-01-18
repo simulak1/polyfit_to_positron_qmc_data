@@ -25,14 +25,11 @@ def test_fit_func():
     args=get_args()
     
     '''
-    Test to fit 1+x**3
-    x=-1,0,1,2
-    y=0,1,2,9
-    r=-2,1
-    returned=-7,2 ??
+    Test to fit 1+-x+x**3
     '''
-    x=np.array([-1.,0.,1.,2.])
-    y=np.array([0.,1.,2.,9.])
+    x=np.arange(-15,15,.1)
+    y=1.-x+2.*x**3
     r=np.array([-2,1])
     fit,popt=fit_func(r,x,y,polynomial_for_kimball3,4,args)
-    assert abs(fit[0]+7.)<.1
+    print(popt)
+    assert abs(fit[0]+13.)<.1
