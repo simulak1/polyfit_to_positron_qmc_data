@@ -71,7 +71,8 @@ def logofg(gs,r,Nx,Npcf,args,crossval):
         ind=0
         g=gs[ipcf]
         N_removed=0
-        while(i<Nx):
+        Nxcopy=Nx
+        while(i<Nxcopy):
             if(g[i]>0):
                 glog[ind]=np.log(g[i])
                 ind+=1
@@ -82,8 +83,8 @@ def logofg(gs,r,Nx,Npcf,args,crossval):
                 
             else: # logarithm cannot be taken        
                 if(args.verbosity>0):
-                   N_removed+=1 
-                rcopy=np.delete(rcopy,i)
+                   N_removed+=1
+                rcopy=np.delete(rcopy,i); Nxcopy-=1 
                 glog=np.delete(glog,ind+1)
             i+=1
         if(args.verbosity>0 and not(crossval)):
