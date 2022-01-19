@@ -119,7 +119,7 @@ def test_function_with_noise2():
     fit1,popt1=fit_func(x2,x1,y1,polynomial_for_kimball5,-1,args)
     mse=np.mean((fit1-y2)**2)
 
-    assert mse<0.02
+    assert mse<0.08
     assert abs(popt1[0])   <1.
 
 def test_function_with_noise3():
